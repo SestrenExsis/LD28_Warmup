@@ -5,6 +5,10 @@ package
 	public class ScreenState extends FlxState
 	{
 		
+		public var colorPalette:ColorTable;
+		public var bgPalettes:ColorTable;
+		public var sprPalettes:ColorTable;
+		
 		public function ScreenState()
 		{
 			super();
@@ -14,18 +18,19 @@ package
 		{
 			super.create();
 			
-			Palette.bgColor = Palette.randomColors(1)[0];
-			FlxG.bgColor = Palette.colors[Palette.bgColor];
-
-			Palette.backgrounds[0] = Palette.randomColors(3).slice();
-			Palette.backgrounds[1] = Palette.randomColors(3).slice();
-			Palette.backgrounds[2] = Palette.randomColors(3).slice();
-			Palette.backgrounds[3] = Palette.randomColors(3).slice();
+			FlxG.bgColor = ColorTable.randomColor();
 			
-			Palette.sprites[0] = Palette.randomColors(3).slice();
-			Palette.sprites[1] = Palette.randomColors(3).slice();
-			Palette.sprites[2] = Palette.randomColors(3).slice();
-			Palette.sprites[3] = Palette.randomColors(3).slice();
+			colorPalette = new ColorTable(8, 8);
+			colorPalette.loadFullPalette();
+			add(colorPalette);
+			
+			bgPalettes = new ColorTable(8, 71);
+			bgPalettes.loadRandomPalette(12, 3);
+			add(bgPalettes);
+			
+			sprPalettes = new ColorTable(8, 127);
+			sprPalettes.loadRandomPalette(12, 3);
+			add(sprPalettes);
 		}
 		
 		override public function update():void
@@ -36,18 +41,6 @@ package
 		override public function draw():void
 		{
 			super.draw();
-			for (var y:int = 0; y < Palette.backgrounds.length; y++)
-			{
-				for (var x:int = 0; x < Palette.backgrounds[y].length; x++)
-				{
-					Palette.fillRect.x = 16 + 12 * x;
-					Palette.fillRect.y = 16 + 12 * y;
-					FlxG.camera.buffer.fillRect(Palette.fillRect, Palette.colors[Palette.backgrounds[y][x]]);
-					
-					Palette.fillRect.x = 16 + 12 * (x + 4);
-					FlxG.camera.buffer.fillRect(Palette.fillRect, Palette.colors[Palette.sprites[y][x]]);
-				}
-			}
 		}
 
 	}
