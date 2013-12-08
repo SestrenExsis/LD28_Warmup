@@ -1,9 +1,12 @@
 package
 {
+	import flash.geom.Rectangle;
+	
 	import org.flixel.*;
 	
 	public class Palette
 	{
+		public static var fillRect:Rectangle = new Rectangle(0, 0, 8, 8);
 		// The 55 colors allowed by the NES's color palette.
 		public static var colors:Array = [ 
 			0xFF000000, 0xFF0000BC, 0xFF0000FC, 0xFF004058, 0xFF005800,
@@ -19,72 +22,46 @@ package
 			0xFFF8D8F8, 0xFFF8F8F8, 0xFFFCA044, 0xFFFCE0A8, 0xFFFCFCFC
 		];
 		
-		//Each of the four 4-color background palettes must share at least one color in common.
-		public static var _commonBackgroundColor:uint;
+		public static var bgColor:uint;
+		
+		// Each of the four background palettes contains 3 colors, plus an implicit transparency color
+		// which will let the bgColor show through
 		public static var backgrounds:Array = new Array();
-		backgrounds[0] = new Array( 0, 0, 0, 0 );
-		backgrounds[1] = new Array( 0, 0, 0, 0 );
-		backgrounds[2] = new Array( 0, 0, 0, 0 );
-		backgrounds[3] = new Array( 0, 0, 0, 0 );
+		backgrounds[0] = new Array( 0, 0, 0 );
+		backgrounds[1] = new Array( 0, 0, 0 );
+		backgrounds[2] = new Array( 0, 0, 0 );
+		backgrounds[3] = new Array( 0, 0, 0 );
 		
-		//Each of the four 4-color sprite palettes must designate one color to be the transparent color.
-		public static var _commonSpriteColor:uint;
+		// Each of the four sprite palettes contains 3 colors, plus an implicit transparency color
 		public static var sprites:Array = new Array();
-		sprites[0] = new Array( 0, 0, 0, 0 );
-		sprites[1] = new Array( 0, 0, 0, 0 );
-		sprites[2] = new Array( 0, 0, 0, 0 );
-		sprites[3] = new Array( 0, 0, 0, 0 );
+		sprites[0] = new Array( 0, 0, 0 );
+		sprites[1] = new Array( 0, 0, 0 );
+		sprites[2] = new Array( 0, 0, 0 );
+		sprites[3] = new Array( 0, 0, 0 );
 		
-		public static function get commonBackgroundColor():uint
+		public static function randomColors(NumColors:uint = 3):Array
 		{
-			return colors[_commonBackgroundColor];
-		}
-		
-		public static function set commonBackgroundColor(Value:uint):void
-		{
-			if (Value >= colors.length)
-				Value = 0;
-			_commonBackgroundColor = Value;
-			for (var i:uint = 0; i < backgrounds.length; i++)
+			if (NumColors >= colors.length) NumColors = colors.length;
+			var colorArray:Array = new Array(NumColors);
+			
+			for (var i:int = 0; i < colorArray.length; i++)
 			{
-				backgrounds[i] = _commonBackgroundColor;
+				colorArray[i] = (int)(FlxG.random() * colors.length - i);
+				var lastOffset:int = 0;
+				var offset:int = 0;
+				do
+				{
+					lastOffset = offset;
+					offset = 0;
+					for (var j:int = 0; j < i; j++)
+					{
+						if (colorArray[j] <= colorArray[i] + lastOffset)
+							offset++;
+					}
+				} while (offset > lastOffset);
+				colorArray[i] += offset;
 			}
-		}
-		
-		public static function get commonSpriteColor():uint
-		{
-			return _commonSpriteColor;
-		}
-		
-		public static function set commonSpriteColor(Value:uint):void
-		{
-			if (Value >= colors.length)
-				Value = 0;
-			_commonSpriteColor = Value;
-			for (var i:uint = 0; i < sprites.length; i++)
-			{
-				sprites[i] = _commonSpriteColor;
-			}
-		}
-		
-		public static function randomizeBackgroundPalette(Palette:uint):void
-		{
-			if (Palette >= backgrounds.length)
-				return;
-			for (var i:uint = 0; i < backgrounds[Palette].length; i++)
-			{
-				backgrounds[Palette][i] = (uint)(FlxG.random() * colors.length);
-			}
-		}
-		
-		public static function randomizeSpritePalette(Palette:uint):void
-		{
-			if (Palette >= sprites.length)
-				return;
-			for (var i:uint = 0; i < sprites[Palette].length; i++)
-			{
-				sprites[Palette][i] = (uint)(FlxG.random() * colors.length);
-			}
+			return colorArray;
 		}
 	}
 }
