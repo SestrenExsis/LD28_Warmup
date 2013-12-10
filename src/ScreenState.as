@@ -22,16 +22,20 @@ package
 			
 			palettes = new FlxGroup();
 			
-			palette = new ColorTable(8, 8);
+			palette = new ColorTable(8, 8, "All");
 			palette.loadFullPalette();
 			palettes.add(palette);
 			
-			palette = new ColorTable(8, 71);
+			palette = new ColorTable(8, 71, "BG");
 			palette.loadRandomPalette(12, 3);
 			palettes.add(palette);
 			
-			palette = new ColorTable(8, 127);
+			palette = new ColorTable(8, 135, "Spr");
 			palette.loadRandomPalette(12, 3)
+			palettes.add(palette);
+			
+			palette = new ColorTable(8, 199, "Test");
+			palette.loadRandomPalette(0, 0)
 			palettes.add(palette);
 			
 			add(palettes);
