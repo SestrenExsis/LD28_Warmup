@@ -12,7 +12,7 @@ package
 		
 		protected var isDragging:Boolean;
 		protected var label:FlxText;
-		protected var colorsPerRow:uint;
+		protected var columns:uint;
 		protected var rows:uint;
 		protected var palette:Array;
 		protected var locked:Array;
@@ -42,7 +42,7 @@ package
 		{
 			if (NumColors >= colors.length)
 				NumColors = colors.length;
-			colorsPerRow = ColorsPerRow;
+			columns = ColorsPerRow;
 			palette = new Array(NumColors);
 			locked = new Array(NumColors);
 			for (var i:int = 0; i < locked.length; i++)
@@ -51,9 +51,9 @@ package
 			}
 			randomizeColors(0, NumColors);
 			
-			rows = (int)(palette.length / colorsPerRow);
-			width = 16 + (10 * Math.max(2,colorsPerRow));
-			height = 16 + (10 * Math.max(1,rows));
+			rows = (int)(palette.length / columns);
+			width = 16 + (10 * Math.max(2, columns));
+			height = 16 + (10 * Math.max(1, rows));
 			
 			return palette;
 		}
@@ -83,17 +83,17 @@ package
 			}
 		}
 		
-		public function loadFullPalette(ColorsPerRow:uint = 14):Array
+		public function loadFullPalette(Columns:uint = 14):Array
 		{
-			colorsPerRow = ColorsPerRow;
+			columns = Columns;
 			palette = new Array(colors.length);
 			for (var i:int = 0; i < palette.length; i++)
 			{
 				palette[i] = i;
 			}
 			
-			rows = (int)(palette.length / colorsPerRow);
-			width = 16 + (10 * Math.max(2,colorsPerRow));
+			rows = (int)(palette.length / columns);
+			width = 8 + (10 * Math.max(2,columns));
 			height = 16 + (10 * Math.max(1,rows));
 			
 			return palette;
@@ -103,24 +103,17 @@ package
 		{
 			super.update();
 			
-/*			var i:int;
-			for (var _y:int = 0; _y < rows; _y++)
-			{
-				for (var _x:int = 0; _x < colorsPerRow; _x++)
-				{
-					i = _y * colorsPerRow + _x;
-					
-				}
-			}*/
-			
 			if (FlxG.mouse.pressed())
 			{
+				var _height:Number = height;
+				height = 12;
 				if (FlxG.mouse.justPressed() && overlapsPoint(FlxG.mouse))
 				{
 					offset.x = FlxG.mouse.x - x;
 					offset.y = FlxG.mouse.y - y;
 					isDragging = true;
 				}
+				height = _height;
 				if (isDragging)
 				{
 					label.x = x = FlxG.mouse.x - offset.x;
@@ -146,31 +139,40 @@ package
 			_flashRect.y = y;
 			FlxG.camera.buffer.fillRect(_flashRect, 0xffffffff);
 			
+			_flashRect.x = x + 1;
+			_flashRect.y = y + 8;
+			_flashRect.width -= 2;
+			_flashRect.height = 3;
+			FlxG.camera.buffer.fillRect(_flashRect, 0xFFA4E4FC);
+			
 			if (palette)
 			{
 				var i:int;
 				var hover:Boolean = false;
 				for (var _y:int = 0; _y < rows; _y++)
 				{
-					for (var _x:int = 0; _x < colorsPerRow; _x++)
+					for (var _x:int = 0; _x < columns; _x++)
 					{
-						i = _y * colorsPerRow + _x;
-						_flashRect.x = x + 13 + 10 * _x;
-						_flashRect.y = y + 13 + 10 * _y;
-						_flashRect.width = _flashRect.height = 8;
+						i = _y * columns + _x;
+						_flashRect.x = x + 4 + 10 * _x;
+						_flashRect.y = y + 12 + 10 * _y;
+						_flashRect.width = _flashRect.height = 9;
 						
 						if (locked)
 						{
 							if (FlxG.mouse.x >= _flashRect.x && FlxG.mouse.x <= _flashRect.x + _flashRect.width &&
 								FlxG.mouse.y >= _flashRect.y && FlxG.mouse.y <= _flashRect.y + _flashRect.height)
 							{
-								hover = true;
-								if (FlxG.mouse.justReleased())
+								//hover = true;
+								if (FlxG.mouse.justPressed())
 									locked[i] = !locked[i];
 							}
-							else 
-								hover = false;
+							//else 
+								//hover = false;
 						}
+						_flashRect.x += 1;
+						_flashRect.y += 1;
+						_flashRect.width = _flashRect.height = 8;
 						if (!hover && (!locked || !locked[i]))
 						{
 							FlxG.camera.buffer.fillRect(_flashRect, 0xff000000);

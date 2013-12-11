@@ -6,6 +6,7 @@ package
 	{
 		public var palette:ColorTable;
 		public var palettes:FlxGroup;
+		public var pattern:PatternTable;
 		
 		public var full:ColorTable;
 		public var background:ColorTable;
@@ -33,12 +34,9 @@ package
 			palette = new ColorTable(8, 135, "Spr");
 			palette.loadRandomPalette(12, 3)
 			palettes.add(palette);
-			
-			palette = new ColorTable(8, 199, "Test");
-			palette.loadRandomPalette(0, 0)
-			palettes.add(palette);
-			
+						
 			add(palettes);
+			add(new PatternTable(8, 199));
 			
 			FlxG.bgColor = ColorTable.randomColor();
 		}
