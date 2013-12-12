@@ -4,18 +4,13 @@ package
 	
 	import org.flixel.*;
 	
-	public class ColorTable extends FlxSprite
+	public class ColorTable extends Window
 	{
 		public static const FULL_PALETTE:uint = 0;
-		public static const BACKGROUNDs:uint = 1;
+		public static const BACKGROUNDS:uint = 1;
 		public static const SPRITES:uint = 2;
 		
-		protected var isDragging:Boolean;
-		protected var label:FlxText;
-		protected var columns:uint;
-		protected var rows:uint;
-		protected var palette:Array;
-		protected var locked:Array;
+		protected static var _bgColor:uint;
 		
 		// The 55 colors allowed by the NES's color palette.
 		public static var colors:Array = [ 
@@ -27,10 +22,19 @@ package
 				
 		public function ColorTable(X:Number, Y:Number, Label:String = "")
 		{
-			super(X, Y);
-			
-			label = new FlxText(X, Y, 36, Label);
-			label.color = 0x000000;
+			super(X, Y, Label);
+		}
+		
+		public static function setBackgroundColor(Index:int = -1):void
+		{
+			if (Index >= colors.length) return;
+			if (Index < 0) _bgColor = (int)(FlxG.random() * colors.length);
+			else _bgColor = Index;
+		}
+		
+		public static function bgColor():uint
+		{
+			return colors[_bgColor];
 		}
 		
 		public static function randomColor():uint
@@ -93,7 +97,7 @@ package
 			}
 			
 			rows = (int)(palette.length / columns);
-			width = 8 + (10 * Math.max(2,columns));
+			width = 8 + (10 * Math.max(4,columns));
 			height = 16 + (10 * Math.max(1,rows));
 			
 			return palette;
@@ -102,48 +106,11 @@ package
 		override public function update():void
 		{
 			super.update();
-			
-			if (FlxG.mouse.pressed())
-			{
-				var _height:Number = height;
-				height = 12;
-				if (FlxG.mouse.justPressed() && overlapsPoint(FlxG.mouse))
-				{
-					offset.x = FlxG.mouse.x - x;
-					offset.y = FlxG.mouse.y - y;
-					isDragging = true;
-				}
-				height = _height;
-				if (isDragging)
-				{
-					label.x = x = FlxG.mouse.x - offset.x;
-					label.y = y = FlxG.mouse.y - offset.y;
-				}
-			}
-			else if (FlxG.mouse.justReleased())
-			{
-				offset.x = offset.y = 0;
-				isDragging = false;
-			}
 		}
 		
 		override public function draw():void
 		{
-			_flashRect.x = x + 1;
-			_flashRect.y = y + 1;
-			_flashRect.width = width;
-			_flashRect.height = height;
-			FlxG.camera.buffer.fillRect(_flashRect, 0xff000000);
-			
-			_flashRect.x = x;
-			_flashRect.y = y;
-			FlxG.camera.buffer.fillRect(_flashRect, 0xffffffff);
-			
-			_flashRect.x = x + 1;
-			_flashRect.y = y + 8;
-			_flashRect.width -= 2;
-			_flashRect.height = 3;
-			FlxG.camera.buffer.fillRect(_flashRect, 0xFFA4E4FC);
+			super.draw();
 			
 			if (palette)
 			{
@@ -182,13 +149,6 @@ package
 						FlxG.camera.buffer.fillRect(_flashRect, colors[palette[i]]);
 					}
 				}
-			}
-			label.draw();
-			
-			if(FlxG.visualDebug && !ignoreDrawDebug)
-			{
-				drawDebug(FlxG.camera);
-				label.drawDebug(FlxG.camera);
 			}
 		}
 	}

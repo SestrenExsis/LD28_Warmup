@@ -4,13 +4,10 @@ package
 	
 	public class ScreenState extends FlxState
 	{
-		public var palette:ColorTable;
-		public var palettes:FlxGroup;
-		public var pattern:PatternTable;
-		
-		public var full:ColorTable;
-		public var background:ColorTable;
-		public var sprite:ColorTable;
+		public var gameScreen:FlxSprite;
+		public var window:Window;
+		public var windows:FlxGroup;
+		//public var pattern:PatternTable;
 		
 		public function ScreenState()
 		{
@@ -21,29 +18,36 @@ package
 		{
 			super.create();
 			
-			palettes = new FlxGroup();
+			windows = new FlxGroup();
 			
-			palette = new ColorTable(8, 8, "All");
-			palette.loadFullPalette();
-			palettes.add(palette);
+			window = new GameWindow(FlxG.width - 256 - 8, 0.5 * (FlxG.height - 240));
+			windows.add(window);
 			
-			palette = new ColorTable(8, 71, "BG");
-			palette.loadRandomPalette(12, 3);
-			palettes.add(palette);
+			window = new ColorTable(8, 8, "All");
+			(window as ColorTable).loadFullPalette();
+			windows.add(window);
 			
-			palette = new ColorTable(8, 135, "Spr");
-			palette.loadRandomPalette(12, 3)
-			palettes.add(palette);
-						
-			add(palettes);
-			add(new PatternTable(8, 199));
+			window = new ColorTable(8, 71, "BG");
+			(window as ColorTable).loadRandomPalette(12, 3);
+			windows.add(window);
 			
-			FlxG.bgColor = ColorTable.randomColor();
+			window = new ColorTable(8, 135, "Spr");
+			(window as ColorTable).loadRandomPalette(12, 3)
+			windows.add(window);
+			
+			windows.add(new PatternTable(8, 199));
+			
+			Window.group = windows;
+			add(windows);
+			FlxG.bgColor = 0xFF787878;
 		}
 		
 		override public function update():void
 		{	
 			super.update();
+			
+			//if (FlxG.mouse.justPressed())
+				windows.sort("timeClicked");
 		}
 		
 		override public function draw():void
