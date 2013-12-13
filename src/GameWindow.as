@@ -4,9 +4,7 @@ package
 	import org.flixel.*;
 	
 	public class GameWindow extends Window
-	{
-		[Embed(source="../assets/images/tilemap.png")] public var imgPattern:Class;
-				
+	{				
 		public function GameWindow(X:Number, Y:Number)
 		{
 			super(X, Y, "Game");

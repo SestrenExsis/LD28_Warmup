@@ -27,11 +27,11 @@ package
 			(window as ColorTable).loadFullPalette();
 			windows.add(window);
 			
-			window = new ColorTable(8, 71, "BG");
+			window = new ColorTable(8, 71, "Bkgrnd");
 			(window as ColorTable).loadRandomPalette(12, 3);
 			windows.add(window);
 			
-			window = new ColorTable(8, 135, "Spr");
+			window = new ColorTable(8, 135, "Sprite");
 			(window as ColorTable).loadRandomPalette(12, 3)
 			windows.add(window);
 			
@@ -46,7 +46,7 @@ package
 		{	
 			super.update();
 			
-			//if (FlxG.mouse.justPressed())
+			if (FlxG.mouse.justPressed())
 				windows.sort("timeClicked");
 		}
 		
