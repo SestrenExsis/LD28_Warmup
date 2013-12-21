@@ -6,6 +6,9 @@ package
 	
 	public class ColorTable extends Window
 	{
+		[Embed(source="../assets/images/paletteColumnHeaders.png")] public var imgColumnHeaders:Class;
+		[Embed(source="../assets/images/paletteRowHeaders.png")] public var imgRowHeaders:Class;
+		
 		public static const COLORS:uint = 0;
 		public static const PALETTES:uint = 1;
 		
@@ -23,6 +26,8 @@ package
 		{
 			super(X, Y, Label);
 			
+			setBackgroundColor();
+			
 			spacing.x = 0;
 			spacing.y = 0;
 		}
@@ -35,11 +40,12 @@ package
 			
 			if (palette)
 			{
-				for (var i:int = 0; i < selected.length; i++)
+				for (var i:int = 0; i < selected.length; i += 4)
 				{
-					selected[i] = false;
+					palette[i] = _bgColor;
 				}
 			}
+			FlxG.bgColor = bgColor();
 		}
 		
 		public static function bgColor():uint
@@ -52,30 +58,32 @@ package
 			return colors[(int)(FlxG.random() * colors.length)];
 		}
 		
-		public function loadPalette(NumColors:uint = 3, ColorsPerRow:uint = 3):Array
+		public function loadPalette(NumColors:uint = 3, Columns:uint = 3):Array
 		{
 			if (NumColors >= colors.length)
 				NumColors = colors.length;
-			columns = ColorsPerRow;
+			
 			palette = new Array(NumColors);
 			selected = new Array(NumColors);
-			for (var i:int = 0; i < selected.length; i++)
+			columns = Columns;
+			rows = Math.ceil(palette.length / columns);
+			
+			columnHeaders = FlxG.addBitmap(imgColumnHeaders);
+			rowHeaders = FlxG.addBitmap(imgRowHeaders);
+			partitionSize = new FlxPoint()
+			partitionSize.x = Math.min(columns, (int)(columnHeaders.width / block.x));
+			partitionSize.y = Math.min(rows, (int)(rowHeaders.height / block.y));
+			FlxG.log(partitionSize.x + " " + partitionSize.y);
+			partitions = new FlxPoint(Math.ceil(columns / partitionSize.x), Math.ceil(rows / partitionSize.y));
+			FlxG.log(partitions.x + " " + partitions.y);
+			width = 4 + (block.x + spacing.x) * Math.max(2, columns + partitions.x);
+			height = 10 + (block.y + spacing.y) * (rows + partitions.y);
+			
+			for (var i:int = 0; i < NumColors; i++)
 			{
 				selected[i] = false;
 			}
 			randomize(0, NumColors);
-			
-			rows = (int)(palette.length / columns);
-			width = 16 + ((8 + spacing.x) * Math.max(2, columns));
-			height = 16 + ((8 + spacing.y) * Math.max(1, rows));
-			
-			// Adjust width and height for divider
-			divider.x = 4;
-			divider.y = -1;
-			if (divider.x >= 0)
-				width += 4;
-			if (divider.y >= 0)
-				height += 4;
 			
 			return palette;
 		}
@@ -112,24 +120,19 @@ package
 		
 		public function loadColors(Columns:uint = 14):Array
 		{
-			columns = Columns;
 			palette = new Array(colors.length);
 			selected = new Array(colors.length);
+			columns = Columns;
+			rows = (int)(palette.length / columns);
+			
 			for (var i:int = 0; i < palette.length; i++)
 			{
 				palette[i] = i;
 				selected[i] = false;
 			}
 			
-			rows = (int)(palette.length / columns);
-			width = 8 + ((8 + spacing.x) * Math.max(4,columns));
-			height = 16 + ((8 + spacing.y) * Math.max(1,rows));
-			
-			// Adjust width and height for divider, if any
-			if (divider.x >= 0)
-				width += 4;
-			if (divider.y >= 0)
-				height += 4;
+			width = 4 + (block.x + spacing.x) * Math.max(2, columns);
+			height = 12 + (block.y + spacing.y) * (rows + 1);
 			
 			return palette;
 		}
@@ -151,14 +154,17 @@ package
 					for (var _x:int = 0; _x < columns; _x++)
 					{
 						i = _y * columns + _x;
-						if (divider.x >= 0 && _x >= divider.x) _flashRect.x = 4;
+						/*if (partitionSize.x >= 0 && _x >= partitionSize.x) _flashRect.x = 4;
 						else _flashRect.x = 0;
-						if (divider.y >= 0 && _y >= divider.y) _flashRect.y = 4;
-						else _flashRect.y = 0;
+						if (partitionSize.y >= 0 && _y >= partitionSize.y) _flashRect.y = 4;
+						else _flashRect.y = 0;*/
+						_flashRect.x = 2;
+						_flashRect.y = 14;
 						
-						_flashRect.x += x + 4 + (8 + spacing.x) * _x;
-						_flashRect.y += y + 12 + (8 + spacing.y) * _y;
-						_flashRect.width = _flashRect.height = 9;
+						_flashRect.x += x + (block.x + spacing.x) * _x;
+						_flashRect.y += y + (block.y + spacing.y) * _y;
+						_flashRect.width = block.x;
+						_flashRect.height = block.y;
 						
 						if (selected)
 						{
@@ -171,7 +177,8 @@ package
 						}
 						_flashRect.x += 1;
 						_flashRect.y += 1;
-						_flashRect.width = _flashRect.height = 8;
+						_flashRect.width = block.x;
+						_flashRect.height = block.y;
 						if (!selected || !selected[i])
 						{
 							FlxG.camera.buffer.fillRect(_flashRect, 0xff000000);

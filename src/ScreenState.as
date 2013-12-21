@@ -7,7 +7,6 @@ package
 		public var gameScreen:FlxSprite;
 		public var window:Window;
 		public var windows:FlxGroup;
-		//public var pattern:PatternTable;
 		
 		public function ScreenState()
 		{

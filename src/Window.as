@@ -1,5 +1,6 @@
 package
 {
+	import flash.display.BitmapData;
 	import flash.geom.Rectangle;
 	import flash.utils.getTimer;
 	
@@ -7,6 +8,7 @@ package
 	
 	public class Window extends FlxSprite
 	{
+		public var block:FlxPoint;
 		public static var instance:Window;
 		public static var group:FlxGroup;
 		
@@ -18,19 +20,24 @@ package
 		
 		protected var isDragging:Boolean;
 		protected var label:FlxText;
-		protected var labels:FlxGroup;
 		protected var rows:uint;
 		protected var columns:uint;
 		protected var palette:Array;
 		protected var selected:Array;
 		
+		// Embed images into these BitmapData vars to add column and row headings to a table.
+		protected var columnHeaders:BitmapData;
+		protected var rowHeaders:BitmapData;
+		
 		public var spacing:FlxPoint;
-		public var divider:FlxPoint;
+		public var partitions:FlxPoint;
+		public var partitionSize:FlxPoint;
 				
 		public function Window(X:Number, Y:Number, Label:String = "")
 		{
 			super(X, Y);
 			
+			block = new FlxPoint(8, 8);
 			//labels = new FlxGroup();
 			//labels.add(label);
 			
@@ -40,7 +47,6 @@ package
 			
 			timeClicked = getTimer();
 			spacing = new FlxPoint();
-			divider = new FlxPoint(-1, -1);
 		}
 		
 		override public function update():void
