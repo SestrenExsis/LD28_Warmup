@@ -18,10 +18,12 @@ package
 		
 		protected var isDragging:Boolean;
 		protected var label:FlxText;
-		protected var columns:uint;
 		protected var rows:uint;
+		protected var columns:uint;
 		protected var palette:Array;
 		protected var locked:Array;
+		
+		public var spacing:uint = 0;
 				
 		public function Window(X:Number, Y:Number, Label:String = "")
 		{

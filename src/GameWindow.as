@@ -4,16 +4,18 @@ package
 	import org.flixel.*;
 	
 	public class GameWindow extends Window
-	{				
+	{
+		public static const screenWidth:Number = 256;
+		public static const screenHeight:Number = 240;
+		
 		public function GameWindow(X:Number, Y:Number)
 		{
 			super(X, Y, "Game");
 						
-			rows = columns = 1;
 			ColorTable.setBackgroundColor();
-			makeGraphic(256, 240, ColorTable.bgColor());
-			width = 8 + 256;
-			height = 20 + 240;
+			makeGraphic(screenWidth, screenHeight, ColorTable.bgColor());
+			width = 8 + screenWidth;
+			height = 20 + screenHeight;
 		}
 
 		override public function update():void

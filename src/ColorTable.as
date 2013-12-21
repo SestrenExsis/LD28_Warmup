@@ -19,7 +19,7 @@ package
 			0xFFF8F8F8, 0xFF3CBCFC, 0xFF6888FC, 0xFF9878F8, 0xFFF878F8, 0xFFF85898, 0xFFF87858, 0xFFFCA044, 0xFFF8B800, 0xFFB8F818, 0xFF58D854, 0xFF58F898, 0xFF00E8D8, 0xFF787878,
 			0xFFFCFCFC, 0xFFA4E4FC, 0xFFB8B8F8, 0xFFD8B8F8, 0xFFF8B8F8, 0xFFF8A4C0, 0xFFF0D0B0, 0xFFFCE0A8, 0xFFF8D878, 0xFFD8F878, 0xFFB8F8B8, 0xFFB8F8D8, 0xFF00FCFC, 0xFFF8D8F8
 		];
-				
+		
 		public function ColorTable(X:Number, Y:Number, Label:String = "")
 		{
 			super(X, Y, Label);
@@ -135,7 +135,7 @@ package
 									locked[i] = !locked[i];
 							}
 							//else 
-								//hover = false;
+							//hover = false;
 						}
 						_flashRect.x += 1;
 						_flashRect.y += 1;

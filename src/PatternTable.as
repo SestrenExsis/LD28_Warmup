@@ -6,19 +6,19 @@ package
 	import org.flixel.*;
 	
 	public class PatternTable extends Window
-	{		
+	{
 		public static const WHITE:uint = 0xffffffff;
 		public static const GRAY:uint = 0xff808080;
 		public static const BLACK:uint = 0xff000000;
 		public static const TRANSPARENT:uint = 0x00000000;
-				
+						
 		public function PatternTable(X:Number, Y:Number)
 		{
 			super(X, Y, "Patterns");
-						
+			
 			rows = columns = 16;
-			width = 8 + 10 * columns;
-			height = 16 + 10 * rows;
+			width = 8 + (8 + spacing) * columns;
+			height = 16 + (8 + spacing) * rows;
 			_pixels = FlxG.createBitmap(16 * 8, 16 * 8, 0x00000000);
 			loadRandomPattern();
 		}
@@ -32,10 +32,9 @@ package
 			{
 				for (var _x:int = 0; _x < columns; _x++)
 				{
-					//brush = fillRandomBrush(brush);
 					_flashPoint.x = 8 * _x;
 					_flashPoint.y = 8 * _y;
-					_pixels.copyPixels(randomBrush(), _flashRect, _flashPoint, null, null, true);
+					_pixels.copyPixels(randomBrush(), _flashRect, _flashPoint, null, null, false);
 				}
 			}
 			return _pixels;
@@ -77,6 +76,9 @@ package
 		override public function update():void
 		{
 			super.update();
+			
+			if (FlxG.keys.justPressed("SPACE"))
+				loadRandomPattern();
 		}
 		
 		override public function draw():void
@@ -88,8 +90,8 @@ package
 			{
 				for (var _x:int = 0; _x < columns; _x++)
 				{
-					_flashRect.x = x + 4 + 10 * _x;
-					_flashRect.y = y + 12 + 10 * _y;
+					_flashRect.x = x + 4 + (8 + spacing) * _x;
+					_flashRect.y = y + 12 + (8 + spacing) * _y;
 					_flashRect.width = _flashRect.height = 8;
 					FlxG.camera.buffer.fillRect(_flashRect, ColorTable.bgColor());
 					
