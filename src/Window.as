@@ -18,21 +18,29 @@ package
 		
 		protected var isDragging:Boolean;
 		protected var label:FlxText;
+		protected var labels:FlxGroup;
 		protected var rows:uint;
 		protected var columns:uint;
 		protected var palette:Array;
-		protected var locked:Array;
+		protected var selected:Array;
 		
-		public var spacing:uint = 0;
+		public var spacing:FlxPoint;
+		public var divider:FlxPoint;
 				
 		public function Window(X:Number, Y:Number, Label:String = "")
 		{
 			super(X, Y);
 			
+			//labels = new FlxGroup();
+			//labels.add(label);
+			
+			//var label:FlxText = new FlxText(X, Y, 48, Label);
 			label = new FlxText(X, Y, 48, Label);
 			label.color = 0x000000;
 			
 			timeClicked = getTimer();
+			spacing = new FlxPoint();
+			divider = new FlxPoint(-1, -1);
 		}
 		
 		override public function update():void

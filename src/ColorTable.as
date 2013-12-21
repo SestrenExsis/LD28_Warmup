@@ -6,9 +6,8 @@ package
 	
 	public class ColorTable extends Window
 	{
-		public static const FULL_PALETTE:uint = 0;
-		public static const BACKGROUNDS:uint = 1;
-		public static const SPRITES:uint = 2;
+		public static const COLORS:uint = 0;
+		public static const PALETTES:uint = 1;
 		
 		protected static var _bgColor:uint;
 		
@@ -23,13 +22,24 @@ package
 		public function ColorTable(X:Number, Y:Number, Label:String = "")
 		{
 			super(X, Y, Label);
+			
+			spacing.x = 0;
+			spacing.y = 0;
 		}
 		
-		public static function setBackgroundColor(Index:int = -1):void
+		public function setBackgroundColor(Index:int = -1):void
 		{
 			if (Index >= colors.length) return;
 			if (Index < 0) _bgColor = (int)(FlxG.random() * colors.length);
 			else _bgColor = Index;
+			
+			if (palette)
+			{
+				for (var i:int = 0; i < selected.length; i++)
+				{
+					selected[i] = false;
+				}
+			}
 		}
 		
 		public static function bgColor():uint
@@ -42,27 +52,35 @@ package
 			return colors[(int)(FlxG.random() * colors.length)];
 		}
 		
-		public function loadRandomPalette(NumColors:uint = 3, ColorsPerRow:uint = 3):Array
+		public function loadPalette(NumColors:uint = 3, ColorsPerRow:uint = 3):Array
 		{
 			if (NumColors >= colors.length)
 				NumColors = colors.length;
 			columns = ColorsPerRow;
 			palette = new Array(NumColors);
-			locked = new Array(NumColors);
-			for (var i:int = 0; i < locked.length; i++)
+			selected = new Array(NumColors);
+			for (var i:int = 0; i < selected.length; i++)
 			{
-				locked[i] = false;
+				selected[i] = false;
 			}
-			randomizeColors(0, NumColors);
+			randomize(0, NumColors);
 			
 			rows = (int)(palette.length / columns);
-			width = 16 + (10 * Math.max(2, columns));
-			height = 16 + (10 * Math.max(1, rows));
+			width = 16 + ((8 + spacing.x) * Math.max(2, columns));
+			height = 16 + ((8 + spacing.y) * Math.max(1, rows));
+			
+			// Adjust width and height for divider
+			divider.x = 4;
+			divider.y = -1;
+			if (divider.x >= 0)
+				width += 4;
+			if (divider.y >= 0)
+				height += 4;
 			
 			return palette;
 		}
 		
-		public function randomizeColors(StartingIndex:uint = 0, EndingIndex:uint = 1):void
+		public function randomize(StartingIndex:uint = 0, EndingIndex:uint = 1):void
 		{
 			if (!palette) return;
 			if (EndingIndex < StartingIndex) EndingIndex = StartingIndex;
@@ -70,35 +88,48 @@ package
 			
 			for (var i:int = StartingIndex; i <= EndingIndex; i++)
 			{
-				palette[i] = (int)(FlxG.random() * (colors.length - i));
-				var lastOffset:int = 0;
-				var offset:int = 0;
-				do
+				if (i < columns) palette[i] = _bgColor;
+				else 
 				{
-					lastOffset = offset;
-					offset = 0;
-					for (var j:int = 0; j < i; j++)
+					palette[i] = (int)(FlxG.random() * (colors.length - i));
+					var lastOffset:int = 0;
+					var offset:int = 0;
+					do
 					{
-						if (palette[j] <= palette[i] + lastOffset)
-							offset++;
-					}
-				} while (offset > lastOffset);
-				palette[i] += offset;
+						lastOffset = offset;
+						offset = 0;
+						for (var j:int = 0; j < i; j++)
+						{
+							if (palette[j] <= palette[i] + lastOffset)
+								offset++;
+						}
+					} while (offset > lastOffset);
+					palette[i] += offset;
+				}
 			}
+			spacing.x = 2;
 		}
 		
-		public function loadFullPalette(Columns:uint = 14):Array
+		public function loadColors(Columns:uint = 14):Array
 		{
 			columns = Columns;
 			palette = new Array(colors.length);
+			selected = new Array(colors.length);
 			for (var i:int = 0; i < palette.length; i++)
 			{
 				palette[i] = i;
+				selected[i] = false;
 			}
 			
 			rows = (int)(palette.length / columns);
-			width = 8 + (10 * Math.max(4,columns));
-			height = 16 + (10 * Math.max(1,rows));
+			width = 8 + ((8 + spacing.x) * Math.max(4,columns));
+			height = 16 + ((8 + spacing.y) * Math.max(1,rows));
+			
+			// Adjust width and height for divider, if any
+			if (divider.x >= 0)
+				width += 4;
+			if (divider.y >= 0)
+				height += 4;
 			
 			return palette;
 		}
@@ -115,32 +146,33 @@ package
 			if (palette)
 			{
 				var i:int;
-				var hover:Boolean = false;
 				for (var _y:int = 0; _y < rows; _y++)
 				{
 					for (var _x:int = 0; _x < columns; _x++)
 					{
 						i = _y * columns + _x;
-						_flashRect.x = x + 4 + 10 * _x;
-						_flashRect.y = y + 12 + 10 * _y;
+						if (divider.x >= 0 && _x >= divider.x) _flashRect.x = 4;
+						else _flashRect.x = 0;
+						if (divider.y >= 0 && _y >= divider.y) _flashRect.y = 4;
+						else _flashRect.y = 0;
+						
+						_flashRect.x += x + 4 + (8 + spacing.x) * _x;
+						_flashRect.y += y + 12 + (8 + spacing.y) * _y;
 						_flashRect.width = _flashRect.height = 9;
 						
-						if (locked)
+						if (selected)
 						{
 							if (FlxG.mouse.x >= _flashRect.x && FlxG.mouse.x <= _flashRect.x + _flashRect.width &&
 								FlxG.mouse.y >= _flashRect.y && FlxG.mouse.y <= _flashRect.y + _flashRect.height)
 							{
-								//hover = true;
 								if (FlxG.mouse.justPressed())
-									locked[i] = !locked[i];
+									selected[i] = !selected[i];
 							}
-							//else 
-							//hover = false;
 						}
 						_flashRect.x += 1;
 						_flashRect.y += 1;
 						_flashRect.width = _flashRect.height = 8;
-						if (!hover && (!locked || !locked[i]))
+						if (!selected || !selected[i])
 						{
 							FlxG.camera.buffer.fillRect(_flashRect, 0xff000000);
 							_flashRect.x -= 1;

@@ -12,7 +12,7 @@ package
 		{
 			super(X, Y, "Game");
 						
-			ColorTable.setBackgroundColor();
+			//ColorTable.setBackgroundColor();
 			makeGraphic(screenWidth, screenHeight, ColorTable.bgColor());
 			width = 8 + screenWidth;
 			height = 20 + screenHeight;

@@ -17,8 +17,8 @@ package
 			super(X, Y, "Patterns");
 			
 			rows = columns = 16;
-			width = 8 + (8 + spacing) * columns;
-			height = 16 + (8 + spacing) * rows;
+			width = 8 + (8 + spacing.x) * columns;
+			height = 16 + (8 + spacing.y) * rows;
 			_pixels = FlxG.createBitmap(16 * 8, 16 * 8, 0x00000000);
 			loadRandomPattern();
 		}
@@ -90,8 +90,8 @@ package
 			{
 				for (var _x:int = 0; _x < columns; _x++)
 				{
-					_flashRect.x = x + 4 + (8 + spacing) * _x;
-					_flashRect.y = y + 12 + (8 + spacing) * _y;
+					_flashRect.x = x + 4 + (8 + spacing.x) * _x;
+					_flashRect.y = y + 12 + (8 + spacing.y) * _y;
 					_flashRect.width = _flashRect.height = 8;
 					FlxG.camera.buffer.fillRect(_flashRect, ColorTable.bgColor());
 					
