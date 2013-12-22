@@ -85,14 +85,13 @@ package
 		{
 			super.draw();
 			
-			var hover:Boolean = false;
+			_flashRect.width = _flashRect.height = 8;
 			for (var _y:int = 0; _y < rows; _y++)
 			{
 				for (var _x:int = 0; _x < columns; _x++)
 				{
 					_flashRect.x = x + 4 + (8 + spacing.x) * _x;
 					_flashRect.y = y + 12 + (8 + spacing.y) * _y;
-					_flashRect.width = _flashRect.height = 8;
 					FlxG.camera.buffer.fillRect(_flashRect, ColorTable.bgColor());
 					
 					_flashPoint.x = _flashRect.x;

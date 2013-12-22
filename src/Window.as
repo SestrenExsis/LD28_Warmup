@@ -29,6 +29,7 @@ package
 		protected var columnHeaders:BitmapData;
 		protected var rowHeaders:BitmapData;
 		
+		public var buffer:FlxPoint;
 		public var spacing:FlxPoint;
 		public var partitions:FlxPoint;
 		public var partitionSize:FlxPoint;
@@ -46,6 +47,7 @@ package
 			label.color = 0x000000;
 			
 			timeClicked = getTimer();
+			buffer = new FlxPoint(2, 2);
 			spacing = new FlxPoint();
 		}
 		
@@ -98,7 +100,7 @@ package
 			_flashRect.width = width;
 			_flashRect.height = height;
 			FlxG.camera.buffer.fillRect(_flashRect, 0xff000000);
-			
+							
 			_flashRect.x = x;
 			_flashRect.y = y;
 			FlxG.camera.buffer.fillRect(_flashRect, 0xffffffff);

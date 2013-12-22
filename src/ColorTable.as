@@ -73,12 +73,16 @@ package
 			partitionSize = new FlxPoint()
 			partitionSize.x = Math.min(columns, (int)(columnHeaders.width / block.x));
 			partitionSize.y = Math.min(rows, (int)(rowHeaders.height / block.y));
-			FlxG.log(partitionSize.x + " " + partitionSize.y);
 			partitions = new FlxPoint(Math.ceil(columns / partitionSize.x), Math.ceil(rows / partitionSize.y));
-			FlxG.log(partitions.x + " " + partitions.y);
-			width = 4 + (block.x + spacing.x) * Math.max(2, columns + partitions.x);
-			height = 10 + (block.y + spacing.y) * (rows + partitions.y);
-			
+			spacing.x = 2;
+			spacing.y = 0;
+			buffer.x = 2;
+			buffer.y = 2;
+
+			width = 2 * buffer.x + (block.x + spacing.x) * Math.max(2, columns + partitions.x);
+			height = 2 * buffer.y + (block.y + spacing.y) * (rows + partitions.y + 1);
+			FlxG.log(width + " " + height);
+
 			for (var i:int = 0; i < NumColors; i++)
 			{
 				selected[i] = false;
@@ -115,7 +119,6 @@ package
 					palette[i] += offset;
 				}
 			}
-			spacing.x = 2;
 		}
 		
 		public function loadColors(Columns:uint = 14):Array
@@ -124,15 +127,19 @@ package
 			selected = new Array(colors.length);
 			columns = Columns;
 			rows = (int)(palette.length / columns);
+			partitions = null;
+			spacing.x = 0;
+			spacing.y = 0;
 			
 			for (var i:int = 0; i < palette.length; i++)
 			{
 				palette[i] = i;
 				selected[i] = false;
 			}
-			
-			width = 4 + (block.x + spacing.x) * Math.max(2, columns);
-			height = 12 + (block.y + spacing.y) * (rows + 1);
+			buffer.x = 2;
+			buffer.y = 2;
+			width = 2 * buffer.x + (block.x + spacing.x) * Math.max(2, columns);
+			height = 2 * buffer.y + (block.y + spacing.y) * (rows + 1);
 			
 			return palette;
 		}
@@ -148,25 +155,26 @@ package
 			
 			if (palette)
 			{
+				_flashRect.width = block.x;
+				_flashRect.height = block.y;
+				
+				var partitionX:int = 0;
+				var partitionY:int = 1;
 				var i:int;
 				for (var _y:int = 0; _y < rows; _y++)
 				{
 					for (var _x:int = 0; _x < columns; _x++)
 					{
 						i = _y * columns + _x;
-						/*if (partitionSize.x >= 0 && _x >= partitionSize.x) _flashRect.x = 4;
-						else _flashRect.x = 0;
-						if (partitionSize.y >= 0 && _y >= partitionSize.y) _flashRect.y = 4;
-						else _flashRect.y = 0;*/
-						_flashRect.x = 2;
-						_flashRect.y = 14;
 						
-						_flashRect.x += x + (block.x + spacing.x) * _x;
-						_flashRect.y += y + (block.y + spacing.y) * _y;
-						_flashRect.width = block.x;
-						_flashRect.height = block.y;
+						// if row or column headers are present, then move drawn segments over based on what partition they are in
+						if (partitionSize)
+						{
+							partitionX = (int)(_x / partitionSize.x) + 1;
+							partitionY = (int)(_y / partitionSize.y) + 2;
+						}
 						
-						if (selected)
+						/*if (selected)
 						{
 							if (FlxG.mouse.x >= _flashRect.x && FlxG.mouse.x <= _flashRect.x + _flashRect.width &&
 								FlxG.mouse.y >= _flashRect.y && FlxG.mouse.y <= _flashRect.y + _flashRect.height)
@@ -177,14 +185,35 @@ package
 						}
 						_flashRect.x += 1;
 						_flashRect.y += 1;
-						_flashRect.width = block.x;
-						_flashRect.height = block.y;
 						if (!selected || !selected[i])
 						{
 							FlxG.camera.buffer.fillRect(_flashRect, 0xff000000);
 							_flashRect.x -= 1;
 							_flashRect.y -= 1;
+						}*/
+						
+						if (partitions)
+						{
+							if ((_y % partitionSize.y) == 0)
+							{
+								_flashPoint.x = x + buffer.x + (block.x + spacing.x) * (_x + partitionX);
+								_flashPoint.y = y + buffer.y + (block.y + spacing.y) * (_y + partitionY - 1);
+								_flashRect.x = (_x % partitionSize.x) * block.x;
+								_flashRect.y = ((partitionY - 2) % partitionSize.y) * block.y;
+								FlxG.camera.buffer.copyPixels(columnHeaders, _flashRect, _flashPoint, null, null, true);
+							}
+							if ((_x % partitionSize.x) == 0)
+							{
+								_flashPoint.x = x + buffer.x + (block.x + spacing.x) * (_x + partitionX - 1);
+								_flashPoint.y = y + buffer.y + (block.y + spacing.y) * (_y + partitionY);
+								_flashRect.x = ((partitionX - 1) % partitionSize.x) * block.x;
+								_flashRect.y = (_y % partitionSize.y) * block.y;
+								FlxG.camera.buffer.copyPixels(rowHeaders, _flashRect, _flashPoint, null, null, true);
+							}
 						}
+						
+						_flashRect.x = x + buffer.x + (block.x + spacing.x) * (_x + partitionX);
+						_flashRect.y = y + buffer.y + (block.y + spacing.y) * (_y + partitionY);
 						FlxG.camera.buffer.fillRect(_flashRect, colors[palette[i]]);
 					}
 				}
