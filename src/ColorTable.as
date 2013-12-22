@@ -9,9 +9,6 @@ package
 		[Embed(source="../assets/images/paletteColumnHeaders.png")] public var imgColumnHeaders:Class;
 		[Embed(source="../assets/images/paletteRowHeaders.png")] public var imgRowHeaders:Class;
 		
-		public static const COLORS:uint = 0;
-		public static const PALETTES:uint = 1;
-		
 		protected static var _bgColor:uint;
 		
 		// The 55 colors allowed by the NES's color palette.
@@ -40,7 +37,7 @@ package
 			
 			if (palette)
 			{
-				for (var i:int = 0; i < selected.length; i += 4)
+				for (var i:int = 0; i < columns; i++)
 				{
 					palette[i] = _bgColor;
 				}
@@ -60,6 +57,7 @@ package
 		
 		public function loadPalette(NumColors:uint = 3, Columns:uint = 3):Array
 		{
+			ID = PALETTES;
 			if (NumColors >= colors.length)
 				NumColors = colors.length;
 			
@@ -80,8 +78,7 @@ package
 			buffer.y = 2;
 
 			width = 2 * buffer.x + (block.x + spacing.x) * Math.max(2, columns + partitions.x);
-			height = 2 * buffer.y + (block.y + spacing.y) * (rows + partitions.y + 1);
-			FlxG.log(width + " " + height);
+			height = titleBarHeight + 2 * buffer.y + (block.y + spacing.y) * (rows + partitions.y);
 
 			for (var i:int = 0; i < NumColors; i++)
 			{
@@ -123,6 +120,7 @@ package
 		
 		public function loadColors(Columns:uint = 14):Array
 		{
+			ID = COLORS;
 			palette = new Array(colors.length);
 			selected = new Array(colors.length);
 			columns = Columns;
@@ -139,7 +137,7 @@ package
 			buffer.x = 2;
 			buffer.y = 2;
 			width = 2 * buffer.x + (block.x + spacing.x) * Math.max(2, columns);
-			height = 2 * buffer.y + (block.y + spacing.y) * (rows + 1);
+			height = titleBarHeight + 2 * buffer.y + (block.y + spacing.y) * rows;
 			
 			return palette;
 		}
@@ -154,12 +152,9 @@ package
 			super.draw();
 			
 			if (palette)
-			{
-				_flashRect.width = block.x;
-				_flashRect.height = block.y;
-				
+			{				
 				var partitionX:int = 0;
-				var partitionY:int = 1;
+				var partitionY:int = 0;
 				var i:int;
 				for (var _y:int = 0; _y < rows; _y++)
 				{
@@ -167,45 +162,30 @@ package
 					{
 						i = _y * columns + _x;
 						
+						_flashRect.width = block.x;
+						_flashRect.height = block.y;
+						
 						// if row or column headers are present, then move drawn segments over based on what partition they are in
 						if (partitionSize)
 						{
 							partitionX = (int)(_x / partitionSize.x) + 1;
-							partitionY = (int)(_y / partitionSize.y) + 2;
+							partitionY = (int)(_y / partitionSize.y) + 1;
 						}
-						
-						/*if (selected)
-						{
-							if (FlxG.mouse.x >= _flashRect.x && FlxG.mouse.x <= _flashRect.x + _flashRect.width &&
-								FlxG.mouse.y >= _flashRect.y && FlxG.mouse.y <= _flashRect.y + _flashRect.height)
-							{
-								if (FlxG.mouse.justPressed())
-									selected[i] = !selected[i];
-							}
-						}
-						_flashRect.x += 1;
-						_flashRect.y += 1;
-						if (!selected || !selected[i])
-						{
-							FlxG.camera.buffer.fillRect(_flashRect, 0xff000000);
-							_flashRect.x -= 1;
-							_flashRect.y -= 1;
-						}*/
 						
 						if (partitions)
 						{
 							if ((_y % partitionSize.y) == 0)
 							{
 								_flashPoint.x = x + buffer.x + (block.x + spacing.x) * (_x + partitionX);
-								_flashPoint.y = y + buffer.y + (block.y + spacing.y) * (_y + partitionY - 1);
+								_flashPoint.y = y + titleBarHeight + buffer.y + (block.y + spacing.y) * (_y + partitionY - 1);
 								_flashRect.x = (_x % partitionSize.x) * block.x;
-								_flashRect.y = ((partitionY - 2) % partitionSize.y) * block.y;
+								_flashRect.y = ((partitionY - 1) % partitionSize.y) * block.y;
 								FlxG.camera.buffer.copyPixels(columnHeaders, _flashRect, _flashPoint, null, null, true);
 							}
 							if ((_x % partitionSize.x) == 0)
 							{
 								_flashPoint.x = x + buffer.x + (block.x + spacing.x) * (_x + partitionX - 1);
-								_flashPoint.y = y + buffer.y + (block.y + spacing.y) * (_y + partitionY);
+								_flashPoint.y = y + titleBarHeight + buffer.y + (block.y + spacing.y) * (_y + partitionY);
 								_flashRect.x = ((partitionX - 1) % partitionSize.x) * block.x;
 								_flashRect.y = (_y % partitionSize.y) * block.y;
 								FlxG.camera.buffer.copyPixels(rowHeaders, _flashRect, _flashPoint, null, null, true);
@@ -213,7 +193,34 @@ package
 						}
 						
 						_flashRect.x = x + buffer.x + (block.x + spacing.x) * (_x + partitionX);
-						_flashRect.y = y + buffer.y + (block.y + spacing.y) * (_y + partitionY);
+						_flashRect.y = y + titleBarHeight + buffer.y + (block.y + spacing.y) * (_y + partitionY);
+						
+						// Place a selection box around the last color clicked on
+						if (selected)
+						{
+							if (FlxG.mouse.x >= _flashRect.x && FlxG.mouse.x <= _flashRect.x + _flashRect.width &&
+								FlxG.mouse.y >= _flashRect.y && FlxG.mouse.y <= _flashRect.y + _flashRect.height)
+							{
+								if (FlxG.mouse.justPressed())
+								{
+									selectTableElement(ID, i);
+								}
+							}
+							
+							if (selected[i])
+							{
+								FlxG.camera.buffer.fillRect(_flashRect, 0xff000000);
+								_flashRect.x += 1;
+								_flashRect.y += 1;
+								_flashRect.width -= 2;
+								_flashRect.height -= 2;
+								FlxG.camera.buffer.fillRect(_flashRect, 0xffffffff);
+								_flashRect.x += 1;
+								_flashRect.y += 1;
+								_flashRect.width -= 2;
+								_flashRect.height -= 2;
+							}
+						}
 						FlxG.camera.buffer.fillRect(_flashRect, colors[palette[i]]);
 					}
 				}

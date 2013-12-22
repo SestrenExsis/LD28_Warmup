@@ -9,12 +9,11 @@ package
 	public class Window extends FlxSprite
 	{
 		public var block:FlxPoint;
-		public static var instance:Window;
 		public static var group:FlxGroup;
 		
-		public static const FULL_PALETTE:uint = 0;
-		public static const BACKGROUNDs:uint = 1;
-		public static const SPRITES:uint = 2;
+		public static const UNDEFINED:int = 999;
+		public static const COLORS:int = 0;
+		public static const PALETTES:int = 1;
 		
 		public var timeClicked:int;
 		
@@ -23,12 +22,13 @@ package
 		protected var rows:uint;
 		protected var columns:uint;
 		protected var palette:Array;
-		protected var selected:Array;
+		public var selected:Array;
 		
 		// Embed images into these BitmapData vars to add column and row headings to a table.
 		protected var columnHeaders:BitmapData;
 		protected var rowHeaders:BitmapData;
 		
+		public var titleBarHeight:Number = 10;
 		public var buffer:FlxPoint;
 		public var spacing:FlxPoint;
 		public var partitions:FlxPoint;
@@ -49,6 +49,84 @@ package
 			timeClicked = getTimer();
 			buffer = new FlxPoint(2, 2);
 			spacing = new FlxPoint();
+			
+			ID = UNDEFINED;
+		}
+		
+		protected static function selectTableElement(TableID:int, Element:int):Boolean
+		{
+			var i:int;
+			var member:Window;
+			do
+			{
+				member = group.members[i] as Window;
+				i++;
+			} while (member.ID != TableID);
+			
+			member.clearSelections();
+			member.selected[Element] = true;
+			
+			if (member.ID == PALETTES)
+			{
+				selectTableElement(COLORS, member.palette[Element]);
+			}
+			else if (member.ID == COLORS)
+			{
+				changeTableElement(PALETTES, member.palette[Element]);
+			}
+			
+			return true;
+		}
+		
+		protected static function changeTableElement(TableID:int, NewValue:int):Boolean
+		{
+			var i:int;
+			var member:Window;
+			do
+			{
+				member = group.members[i] as Window;
+				i++;
+			} while (member.ID != TableID);
+			
+			var _valueChanged:Boolean = false;
+			var _oldValue:int;
+			var element:int;
+			for (i = 0; i < member.palette.length; i++)
+			{
+				if (member.selected[i])
+				{
+					_oldValue = member.palette[i];
+					member.palette[i] = NewValue;
+					if (_oldValue != NewValue)
+						_valueChanged = true;
+					
+					// If we're changing one of the fixed colors (like the background or sprite transparency color), then change
+					// the displayed background color and all other fixed colors.
+					if (TableID == PALETTES)
+					{
+						if (i < member.columns)
+							(member as ColorTable).setBackgroundColor(NewValue);
+					}
+				}
+			}
+			
+			return _valueChanged;
+		}
+		
+		protected function clearSelections():Boolean
+		{
+			var _selectionChanged:Boolean = false;
+			if (selected)
+			{
+				for (var i:int = 0; i < palette.length; i++)
+				{
+					if (selected[i] == true)
+						_selectionChanged = true;
+					selected[i] = false;
+				}
+			}
+			
+			return _selectionChanged;
 		}
 		
 		override public function update():void
@@ -67,7 +145,7 @@ package
 				{
 					for (var i:uint = 0; i < group.length; i++)
 					{
-						instance = group.members[i];
+						var instance:Window = group.members[i];
 						_overlaps = instance.overlapsPoint(FlxG.mouse);
 						if (_overlaps && instance.timeClicked > maxTime)
 							maxTime = instance.timeClicked;

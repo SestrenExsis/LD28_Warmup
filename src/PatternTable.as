@@ -40,7 +40,14 @@ package
 			return _pixels;
 		}
 		
-		public function randomBrush():BitmapData
+		/**
+		 * Create a random 8px by 8px bitmap using four colors (TRANSPARENT, WHITE, GRAY, and BLACK).
+		 * 
+		 * @param	Seed	Pass a seed value when generating the random bitmap.
+		 * 
+		 * @return	The 8px by 8px bitmap.
+		 */
+		public function randomBrush(Seed:Number = -1):BitmapData
 		{
 			if((framePixels == null) || (framePixels.width != width) || (framePixels.height != height))
 				framePixels = new BitmapData(width,height);
@@ -51,7 +58,8 @@ package
 			{
 				for (var _x:int = 0; _x < framePixels.width; _x++)
 				{
-					_index = (int)(FlxG.random() * 4);
+					if (Seed >= 0 && Seed <= 1) _index = FlxU.srand(Seed)
+					else _index = (int)(FlxG.random() * 4);
 					switch (_index)
 					{
 						case 0:
