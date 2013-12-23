@@ -31,6 +31,8 @@ package
 		
 		public function setBackgroundColor(Index:int = -1):void
 		{
+			// When changing the background color, the tileset graphic needs to be refreshed. This is currently not implemented.
+			
 			if (Index >= colors.length) return;
 			if (Index < 0) _bgColor = (int)(FlxG.random() * colors.length);
 			else _bgColor = Index;
@@ -53,6 +55,17 @@ package
 		public static function randomColor():uint
 		{
 			return colors[(int)(FlxG.random() * colors.length)];
+		}
+		
+		public function getColorPalette():Array
+		{
+			var _column:int = lastSelectedIndex % columns;
+			var paletteArray:Array = new Array(rows);
+			for (var i:int = 0; i < paletteArray.length; i++)
+			{
+				paletteArray[i] = colors[elements[_column + columns * i]];
+			}
+			return paletteArray;
 		}
 		
 		public function loadPalette(NumColors:uint = 3, Columns:uint = 3):Array

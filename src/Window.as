@@ -14,6 +14,7 @@ package
 		public static const UNDEFINED:int = 999;
 		public static const COLORS:int = 0;
 		public static const PALETTES:int = 1;
+		public static const TILESET:int = 2;
 		
 		public var timeClicked:int;
 		
@@ -23,6 +24,7 @@ package
 		protected var columns:uint;
 		protected var elements:Array;
 		public var selected:Array;
+		public var lastSelectedIndex:uint;
 		
 		// Embed images into these BitmapData vars to add column and row headings to a table.
 		protected var columnHeaders:BitmapData;
@@ -51,20 +53,17 @@ package
 		
 		protected static function selectTableElement(TableID:int, Element:int):Boolean
 		{
-			var i:int;
-			var member:Window;
-			do
-			{
-				member = group.members[i] as Window;
-				i++;
-			} while (member.ID != TableID);
-			
+			var member:Window = getTableByID(TableID);
 			member.clearSelections();
 			member.selected[Element] = true;
+			member.lastSelectedIndex = Element;
 			
 			if (member.ID == PALETTES)
 			{
 				selectTableElement(COLORS, member.elements[Element]);
+				var _currentPalette:Array = (member as ColorTable).getColorPalette();
+				member = getTableByID(TILESET);
+				(member as PatternTable).changePalette(_currentPalette);
 			}
 			else if (member.ID == COLORS)
 			{
@@ -76,18 +75,12 @@ package
 		
 		protected static function changeTableElement(TableID:int, NewValue:int):Boolean
 		{
-			var i:int;
-			var member:Window;
-			do
-			{
-				member = group.members[i] as Window;
-				i++;
-			} while (member.ID != TableID);
+			var member:Window = getTableByID(TableID);
 			
 			var _valueChanged:Boolean = false;
 			var _oldValue:int;
 			var element:int;
-			for (i = 0; i < member.elements.length; i++)
+			for (var i:int = 0; i < member.elements.length; i++)
 			{
 				if (member.selected[i])
 				{
@@ -107,6 +100,18 @@ package
 			}
 			
 			return _valueChanged;
+		}
+		
+		protected static function getTableByID(TableID:int):Window
+		{
+			var i:int;
+			var member:Window;
+			do
+			{
+				member = group.members[i] as Window;
+				i++;
+			} while (member.ID != TableID);
+			return member;
 		}
 		
 		protected function clearSelections():Boolean

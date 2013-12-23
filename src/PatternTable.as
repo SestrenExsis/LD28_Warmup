@@ -7,14 +7,15 @@ package
 	
 	public class PatternTable extends Window
 	{
-		public static const WHITE:uint = 0xffffffff;
-		public static const GRAY:uint = 0xff808080;
-		public static const BLACK:uint = 0xff000000;
-		public static const TRANSPARENT:uint = 0x00000000;
-						
-		public function PatternTable(X:Number, Y:Number)
+		public static const INDEX0:uint = 0x00000000;
+		public static const INDEX1:uint = 0xffffffff;
+		public static const INDEX2:uint = 0xff808080;
+		public static const INDEX3:uint = 0xff000000;
+								
+		public function PatternTable(X:Number, Y:Number, Palette:Array = null)
 		{
 			super(X, Y, "Tileset");
+			ID = TILESET;
 			
 			rows = columns = 16;
 			
@@ -34,10 +35,10 @@ package
 			width = 2 * buffer.x + (block.x + spacing.x) * Math.max(2, columns) - spacing.x
 			height = titleBarHeight + 2 * buffer.y + (block.y + spacing.y) * rows - spacing.y;
 			
-			//width = 8 + (block.x + spacing.x) * columns;
-			//height = 16 + (block.y + spacing.y) * rows;
 			_pixels = FlxG.createBitmap(columns * block.x, rows * block.y, 0x00000000);
 			loadRandomPattern();
+			if (Palette)
+				changePalette(Palette);
 		}
 		
 		public function loadRandomPattern():BitmapData
@@ -55,7 +56,30 @@ package
 					_pixels.copyPixels(randomBrush(), _flashRect, _flashPoint, null, null, false);
 				}
 			}
+			_flashRect.x = _flashRect.y = 0;
+			_flashRect.width = columns * block.x;
+			_flashRect.height = rows * block.y;
+			framePixels.copyPixels(pixels, _flashRect, _flashPointZero, null, null, false);
+			
 			return _pixels;
+		}
+		
+		public function changePalette(Palette:Array):void
+		{
+			for (var _x:int = 0; _x < framePixels.width; _x++)
+			{
+				for (var _y:int = 0; _y < framePixels.height; _y++)
+				{
+					if(pixels.getPixel32(_x, _y) == INDEX0)
+						framePixels.setPixel32(_x, _y, Palette[0]);
+					else if(pixels.getPixel32(_x, _y) == INDEX1)
+						framePixels.setPixel32(_x, _y, Palette[1]);
+					else if(pixels.getPixel32(_x, _y) == INDEX2)
+						framePixels.setPixel32(_x, _y, Palette[2]);
+					else if(pixels.getPixel32(_x, _y) == INDEX3)
+						framePixels.setPixel32(_x, _y, Palette[3]);
+				}
+			}
 		}
 		
 		/**
@@ -81,16 +105,16 @@ package
 					switch (_index)
 					{
 						case 0:
-							_randColor = WHITE;
+							_randColor = INDEX0;
 							break;
 						case 1:
-							_randColor = GRAY;
+							_randColor = INDEX1;
 							break;
 						case 2:
-							_randColor = BLACK;
+							_randColor = INDEX2;
 							break;
 						default:
-							_randColor = TRANSPARENT;
+							_randColor = INDEX3;
 							break;
 					}
 					framePixels.setPixel32(_x, _y, _randColor);
@@ -103,6 +127,7 @@ package
 		{
 			super.update();
 			
+			// When randomizing a new tileset, the tileset graphic needs to be refreshed. This is currently not implemented.
 			if (FlxG.keys.justPressed("SPACE"))
 				loadRandomPattern();
 		}
@@ -121,7 +146,7 @@ package
 			_flashRect.x = block.x * _x;
 			_flashRect.y = block.y * _y;
 			
-			FlxG.camera.buffer.copyPixels(pixels, _flashRect, _flashPoint, null, null, true);
+			FlxG.camera.buffer.copyPixels(framePixels, _flashRect, _flashPoint, null, null, true);
 		}
 		
 		override public function draw():void

@@ -5,7 +5,6 @@ package
 	public class ScreenState extends FlxState
 	{
 		public var gameScreen:FlxSprite;
-		public var window:Window;
 		public var windows:FlxGroup;
 		
 		public function ScreenState()
@@ -18,6 +17,9 @@ package
 			super.create();
 			
 			FlxG.bgColor = 0xFF787878;
+			
+			var colorTable:ColorTable;
+			var patternTable:PatternTable;
 
 			windows = new FlxGroup();
 			Window.group = windows;
@@ -25,15 +27,18 @@ package
 			
 			windows.add(new GameWindow(FlxG.width - GameWindow.screenWidth - 8, 0.5 * (FlxG.height - GameWindow.screenHeight)));
 			
-			window = new ColorTable(8, 8, "Colors");
-			windows.add(window);
-			(window as ColorTable).loadColors();
+			colorTable = new ColorTable(8, 8, "Colors");
+			windows.add(colorTable);
+			colorTable.loadColors();
 			
-			window = new ColorTable(8, 61, "Palettes");
-			windows.add(window);
-			(window as ColorTable).loadPalette(32, 8);
+			patternTable = new PatternTable(8, 122);
+			windows.add(patternTable);
 			
-			windows.add(new PatternTable(8, 122));
+			colorTable = new ColorTable(8, 61, "Palettes");
+			windows.add(colorTable);
+			colorTable.loadPalette(32, 8);
+			
+			patternTable.changePalette(colorTable.getColorPalette());
 		}
 		
 		override public function update():void
