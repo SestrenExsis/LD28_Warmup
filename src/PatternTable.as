@@ -14,26 +14,44 @@ package
 						
 		public function PatternTable(X:Number, Y:Number)
 		{
-			super(X, Y, "Patterns");
+			super(X, Y, "Tileset");
 			
 			rows = columns = 16;
-			width = 8 + (8 + spacing.x) * columns;
-			height = 16 + (8 + spacing.y) * rows;
-			_pixels = FlxG.createBitmap(16 * 8, 16 * 8, 0x00000000);
+			
+			spacing.x = 0;
+			spacing.y = 0;
+			
+			elements = new Array(rows * columns);
+			selected = new Array(rows * columns);
+			for (var i:int = 0; i < elements.length; i++)
+			{
+				elements[i] = i;
+				selected[i] = false;
+			}
+			
+			buffer.x = 2;
+			buffer.y = 2;
+			width = 2 * buffer.x + (block.x + spacing.x) * Math.max(2, columns) - spacing.x
+			height = titleBarHeight + 2 * buffer.y + (block.y + spacing.y) * rows - spacing.y;
+			
+			//width = 8 + (block.x + spacing.x) * columns;
+			//height = 16 + (block.y + spacing.y) * rows;
+			_pixels = FlxG.createBitmap(columns * block.x, rows * block.y, 0x00000000);
 			loadRandomPattern();
 		}
 		
 		public function loadRandomPattern():BitmapData
 		{
 			_flashRect.x = _flashRect.y = 0;
-			_flashRect.width = _flashRect.height = 8;
+			_flashRect.width = block.x;
+			_flashRect.height = block.y;
 			
 			for (var _y:int = 0; _y < rows; _y++)
 			{
 				for (var _x:int = 0; _x < columns; _x++)
 				{
-					_flashPoint.x = 8 * _x;
-					_flashPoint.y = 8 * _y;
+					_flashPoint.x = block.x * _x;
+					_flashPoint.y = block.y * _y;
 					_pixels.copyPixels(randomBrush(), _flashRect, _flashPoint, null, null, false);
 				}
 			}
@@ -89,26 +107,26 @@ package
 				loadRandomPattern();
 		}
 		
+		override public function drawElementBackground(ElementIndex:int):void
+		{
+			FlxG.camera.buffer.fillRect(_flashRect, ColorTable.bgColor());
+		}
+		
+		override public function drawElement(ElementIndex:int):void
+		{
+			var _x:int = ElementIndex % columns;
+			var _y:int = (int)(ElementIndex / columns);
+			_flashPoint.x = _flashRect.x;
+			_flashPoint.y = _flashRect.y;
+			_flashRect.x = block.x * _x;
+			_flashRect.y = block.y * _y;
+			
+			FlxG.camera.buffer.copyPixels(pixels, _flashRect, _flashPoint, null, null, true);
+		}
+		
 		override public function draw():void
 		{
 			super.draw();
-			
-			_flashRect.width = _flashRect.height = 8;
-			for (var _y:int = 0; _y < rows; _y++)
-			{
-				for (var _x:int = 0; _x < columns; _x++)
-				{
-					_flashRect.x = x + 4 + (8 + spacing.x) * _x;
-					_flashRect.y = y + 12 + (8 + spacing.y) * _y;
-					FlxG.camera.buffer.fillRect(_flashRect, ColorTable.bgColor());
-					
-					_flashPoint.x = _flashRect.x;
-					_flashPoint.y = _flashRect.y;
-					_flashRect.x = 8 * _x;
-					_flashRect.y = 8 * _y;
-					FlxG.camera.buffer.copyPixels(pixels, _flashRect, _flashPoint, null, null, true);
-				}
-			}
 		}
 	}
 }

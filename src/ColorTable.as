@@ -35,11 +35,11 @@ package
 			if (Index < 0) _bgColor = (int)(FlxG.random() * colors.length);
 			else _bgColor = Index;
 			
-			if (palette)
+			if (elements)
 			{
 				for (var i:int = 0; i < columns; i++)
 				{
-					palette[i] = _bgColor;
+					elements[i] = _bgColor;
 				}
 			}
 			FlxG.bgColor = bgColor();
@@ -61,10 +61,10 @@ package
 			if (NumColors >= colors.length)
 				NumColors = colors.length;
 			
-			palette = new Array(NumColors);
+			elements = new Array(NumColors);
 			selected = new Array(NumColors);
 			columns = Columns;
-			rows = Math.ceil(palette.length / columns);
+			rows = Math.ceil(elements.length / columns);
 			
 			columnHeaders = FlxG.addBitmap(imgColumnHeaders);
 			rowHeaders = FlxG.addBitmap(imgRowHeaders);
@@ -72,35 +72,34 @@ package
 			partitionSize.x = Math.min(columns, (int)(columnHeaders.width / block.x));
 			partitionSize.y = Math.min(rows, (int)(rowHeaders.height / block.y));
 			partitions = new FlxPoint(Math.ceil(columns / partitionSize.x), Math.ceil(rows / partitionSize.y));
+			
 			spacing.x = 2;
 			spacing.y = 0;
 			buffer.x = 2;
 			buffer.y = 2;
 
-			width = 2 * buffer.x + (block.x + spacing.x) * Math.max(2, columns + partitions.x);
-			height = titleBarHeight + 2 * buffer.y + (block.y + spacing.y) * (rows + partitions.y);
+			width = 2 * buffer.x + (block.x + spacing.x) * Math.max(2, columns + partitions.x) - spacing.x;
+			height = titleBarHeight + 2 * buffer.y + (block.y + spacing.y) * (rows + partitions.y) - spacing.y;
 
-			for (var i:int = 0; i < NumColors; i++)
-			{
-				selected[i] = false;
-			}
 			randomize(0, NumColors);
-			
-			return palette;
+			clearSelections();
+			selectTableElement(ID, 0);
+
+			return elements;
 		}
 		
 		public function randomize(StartingIndex:uint = 0, EndingIndex:uint = 1):void
 		{
-			if (!palette) return;
+			if (!elements) return;
 			if (EndingIndex < StartingIndex) EndingIndex = StartingIndex;
-			if (EndingIndex > palette.length) return;
+			if (EndingIndex > elements.length) return;
 			
 			for (var i:int = StartingIndex; i <= EndingIndex; i++)
 			{
-				if (i < columns) palette[i] = _bgColor;
+				if (i < columns) elements[i] = _bgColor;
 				else 
 				{
-					palette[i] = (int)(FlxG.random() * (colors.length - i));
+					elements[i] = (int)(FlxG.random() * (colors.length - i));
 					var lastOffset:int = 0;
 					var offset:int = 0;
 					do
@@ -109,11 +108,11 @@ package
 						offset = 0;
 						for (var j:int = 0; j < i; j++)
 						{
-							if (palette[j] <= palette[i] + lastOffset)
+							if (elements[j] <= elements[i] + lastOffset)
 								offset++;
 						}
 					} while (offset > lastOffset);
-					palette[i] += offset;
+					elements[i] += offset;
 				}
 			}
 		}
@@ -121,25 +120,25 @@ package
 		public function loadColors(Columns:uint = 14):Array
 		{
 			ID = COLORS;
-			palette = new Array(colors.length);
+			elements = new Array(colors.length);
 			selected = new Array(colors.length);
 			columns = Columns;
-			rows = (int)(palette.length / columns);
+			rows = (int)(elements.length / columns);
 			partitions = null;
 			spacing.x = 0;
 			spacing.y = 0;
 			
-			for (var i:int = 0; i < palette.length; i++)
+			for (var i:int = 0; i < elements.length; i++)
 			{
-				palette[i] = i;
+				elements[i] = i;
 				selected[i] = false;
 			}
 			buffer.x = 2;
 			buffer.y = 2;
-			width = 2 * buffer.x + (block.x + spacing.x) * Math.max(2, columns);
-			height = titleBarHeight + 2 * buffer.y + (block.y + spacing.y) * rows;
+			width = 2 * buffer.x + (block.x + spacing.x) * Math.max(2, columns) - spacing.x
+			height = titleBarHeight + 2 * buffer.y + (block.y + spacing.y) * rows - spacing.y;
 			
-			return palette;
+			return elements;
 		}
 		
 		override public function update():void
@@ -147,84 +146,14 @@ package
 			super.update();
 		}
 		
+		override public function drawElement(ElementIndex:int):void
+		{
+			FlxG.camera.buffer.fillRect(_flashRect, colors[elements[ElementIndex]]);
+		}
+		
 		override public function draw():void
 		{
 			super.draw();
-			
-			if (palette)
-			{				
-				var partitionX:int = 0;
-				var partitionY:int = 0;
-				var i:int;
-				for (var _y:int = 0; _y < rows; _y++)
-				{
-					for (var _x:int = 0; _x < columns; _x++)
-					{
-						i = _y * columns + _x;
-						
-						_flashRect.width = block.x;
-						_flashRect.height = block.y;
-						
-						// if row or column headers are present, then move drawn segments over based on what partition they are in
-						if (partitionSize)
-						{
-							partitionX = (int)(_x / partitionSize.x) + 1;
-							partitionY = (int)(_y / partitionSize.y) + 1;
-						}
-						
-						if (partitions)
-						{
-							if ((_y % partitionSize.y) == 0)
-							{
-								_flashPoint.x = x + buffer.x + (block.x + spacing.x) * (_x + partitionX);
-								_flashPoint.y = y + titleBarHeight + buffer.y + (block.y + spacing.y) * (_y + partitionY - 1);
-								_flashRect.x = (_x % partitionSize.x) * block.x;
-								_flashRect.y = ((partitionY - 1) % partitionSize.y) * block.y;
-								FlxG.camera.buffer.copyPixels(columnHeaders, _flashRect, _flashPoint, null, null, true);
-							}
-							if ((_x % partitionSize.x) == 0)
-							{
-								_flashPoint.x = x + buffer.x + (block.x + spacing.x) * (_x + partitionX - 1);
-								_flashPoint.y = y + titleBarHeight + buffer.y + (block.y + spacing.y) * (_y + partitionY);
-								_flashRect.x = ((partitionX - 1) % partitionSize.x) * block.x;
-								_flashRect.y = (_y % partitionSize.y) * block.y;
-								FlxG.camera.buffer.copyPixels(rowHeaders, _flashRect, _flashPoint, null, null, true);
-							}
-						}
-						
-						_flashRect.x = x + buffer.x + (block.x + spacing.x) * (_x + partitionX);
-						_flashRect.y = y + titleBarHeight + buffer.y + (block.y + spacing.y) * (_y + partitionY);
-						
-						// Place a selection box around the last color clicked on
-						if (selected)
-						{
-							if (FlxG.mouse.x >= _flashRect.x && FlxG.mouse.x <= _flashRect.x + _flashRect.width &&
-								FlxG.mouse.y >= _flashRect.y && FlxG.mouse.y <= _flashRect.y + _flashRect.height)
-							{
-								if (FlxG.mouse.justPressed())
-								{
-									selectTableElement(ID, i);
-								}
-							}
-							
-							if (selected[i])
-							{
-								FlxG.camera.buffer.fillRect(_flashRect, 0xff000000);
-								_flashRect.x += 1;
-								_flashRect.y += 1;
-								_flashRect.width -= 2;
-								_flashRect.height -= 2;
-								FlxG.camera.buffer.fillRect(_flashRect, 0xffffffff);
-								_flashRect.x += 1;
-								_flashRect.y += 1;
-								_flashRect.width -= 2;
-								_flashRect.height -= 2;
-							}
-						}
-						FlxG.camera.buffer.fillRect(_flashRect, colors[palette[i]]);
-					}
-				}
-			}
 		}
 	}
 }
