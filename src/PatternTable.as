@@ -11,10 +11,10 @@ package
 		public static const INDEX1:uint = 0xffffffff;
 		public static const INDEX2:uint = 0xff808080;
 		public static const INDEX3:uint = 0xff000000;
-								
-		public function PatternTable(X:Number, Y:Number, Palette:Array = null)
+				
+		public function PatternTable(X:Number, Y:Number, Label:String = "")
 		{
-			super(X, Y, "Tileset");
+			super(X, Y, Label);
 			ID = TILESET;
 			
 			rows = columns = 16;
@@ -37,8 +37,6 @@ package
 			
 			_pixels = FlxG.createBitmap(columns * block.x, rows * block.y, 0x00000000);
 			loadRandomPattern();
-			if (Palette)
-				changePalette(Palette);
 		}
 		
 		public function loadRandomPattern():BitmapData
@@ -60,6 +58,10 @@ package
 			_flashRect.width = columns * block.x;
 			_flashRect.height = rows * block.y;
 			framePixels.copyPixels(pixels, _flashRect, _flashPointZero, null, null, false);
+			
+			var palettes:ColorTable = getTableByID(PALETTES) as ColorTable;
+			if (palettes)
+				changePalette(palettes.getColorPalette());
 			
 			return _pixels;
 		}

@@ -31,7 +31,7 @@ package
 			windows.add(colorTable);
 			colorTable.loadColors();
 			
-			patternTable = new PatternTable(8, 122);
+			patternTable = new PatternTable(8, 122, "Tileset");
 			windows.add(patternTable);
 			
 			colorTable = new ColorTable(8, 61, "Palettes");
@@ -39,6 +39,10 @@ package
 			colorTable.loadPalette(32, 8);
 			
 			patternTable.changePalette(colorTable.getColorPalette());
+			
+			colorTable = new ColorTable(8, 160, "Tile Editor");
+			windows.add(colorTable);
+			colorTable.loadTileEditor();
 		}
 		
 		override public function update():void

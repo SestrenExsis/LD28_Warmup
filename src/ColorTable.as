@@ -101,6 +101,38 @@ package
 			return elements;
 		}
 		
+		public function loadTileEditor():Array
+		{
+			ID = TILE_EDITOR;
+			
+			elements = new Array(64);
+			selected = new Array(64);
+			columns = 8;
+			rows = 8;
+			
+			/*columnHeaders = FlxG.addBitmap(imgColumnHeaders);
+			rowHeaders = FlxG.addBitmap(imgRowHeaders);
+			partitionSize = new FlxPoint()
+			partitionSize.x = Math.min(columns, (int)(columnHeaders.width / block.x));
+			partitionSize.y = Math.min(rows, (int)(rowHeaders.height / block.y));
+			partitions = new FlxPoint(Math.ceil(columns / partitionSize.x), Math.ceil(rows / partitionSize.y));*/
+			
+			spacing.x = 1;
+			spacing.y = 1;
+			buffer.x = 2;
+			buffer.y = 2;
+			
+			width = 2 * buffer.x + (block.x + spacing.x) * Math.max(2, columns + partitions.x) - spacing.x;
+			height = titleBarHeight + 2 * buffer.y + (block.y + spacing.y) * (rows + partitions.y) - spacing.y;
+			
+			for (var i:int = 0; i < elements.length; i++)
+			{
+				elements[i] = PatternTable.INDEX0;
+				selected[i] = false;
+			}
+			return elements;
+		}
+		
 		public function randomize(StartingIndex:uint = 0, EndingIndex:uint = 1):void
 		{
 			if (!elements) return;

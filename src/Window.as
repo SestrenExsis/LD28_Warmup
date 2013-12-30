@@ -15,6 +15,7 @@ package
 		public static const COLORS:int = 0;
 		public static const PALETTES:int = 1;
 		public static const TILESET:int = 2;
+		public static const TILE_EDITOR:int = 3;
 		
 		public var timeClicked:int;
 		
@@ -41,7 +42,7 @@ package
 			super(X, Y);
 			
 			block = new FlxPoint(8, 8);
-			label = new FlxText(X, Y, 48, Label);
+			label = new FlxText(X, Y, 72, Label);
 			label.color = 0x000000;
 			
 			timeClicked = getTimer();
@@ -58,16 +59,22 @@ package
 			member.selected[Element] = true;
 			member.lastSelectedIndex = Element;
 			
+			var _currentPalette:Array
 			if (member.ID == PALETTES)
 			{
 				selectTableElement(COLORS, member.elements[Element]);
-				var _currentPalette:Array = (member as ColorTable).getColorPalette();
+				_currentPalette = (member as ColorTable).getColorPalette();
 				member = getTableByID(TILESET);
 				(member as PatternTable).changePalette(_currentPalette);
 			}
 			else if (member.ID == COLORS)
 			{
 				changeTableElement(PALETTES, member.elements[Element]);
+				//selectTableElement(PALETTES, member.elements[Element]);
+				member = getTableByID(PALETTES);
+				_currentPalette = (member as ColorTable).getColorPalette();
+				member = getTableByID(TILESET);
+				(member as PatternTable).changePalette(_currentPalette);
 			}
 			
 			return true;
@@ -110,8 +117,11 @@ package
 			{
 				member = group.members[i] as Window;
 				i++;
-			} while (member.ID != TableID);
-			return member;
+			} while (member.ID != TableID && i < group.members.length);
+			if (member.ID == TableID)
+				return member;
+			else
+				return null;
 		}
 		
 		protected function clearSelections():Boolean
