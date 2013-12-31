@@ -19,11 +19,11 @@ package
 			0xFFFCFCFC, 0xFFA4E4FC, 0xFFB8B8F8, 0xFFD8B8F8, 0xFFF8B8F8, 0xFFF8A4C0, 0xFFF0D0B0, 0xFFFCE0A8, 0xFFF8D878, 0xFFD8F878, 0xFFB8F8B8, 0xFFB8F8D8, 0xFF00FCFC, 0xFFF8D8F8
 		];
 		
+		public static var BLACK:uint = 13;
+		
 		public function ColorTable(X:Number, Y:Number, Label:String = "")
 		{
 			super(X, Y, Label);
-			
-			setBackgroundColor();
 			
 			spacing.x = 0;
 			spacing.y = 0;
@@ -97,6 +97,8 @@ package
 			randomize(0, NumColors);
 			clearSelections();
 			selectTableElement(ID, 0);
+			
+			setBackgroundColor();
 
 			return elements;
 		}
@@ -109,13 +111,7 @@ package
 			selected = new Array(64);
 			columns = 8;
 			rows = 8;
-			
-			/*columnHeaders = FlxG.addBitmap(imgColumnHeaders);
-			rowHeaders = FlxG.addBitmap(imgRowHeaders);
-			partitionSize = new FlxPoint()
-			partitionSize.x = Math.min(columns, (int)(columnHeaders.width / block.x));
-			partitionSize.y = Math.min(rows, (int)(rowHeaders.height / block.y));
-			partitions = new FlxPoint(Math.ceil(columns / partitionSize.x), Math.ceil(rows / partitionSize.y));*/
+			partitions = new FlxPoint();
 			
 			spacing.x = 1;
 			spacing.y = 1;
@@ -127,9 +123,10 @@ package
 			
 			for (var i:int = 0; i < elements.length; i++)
 			{
-				elements[i] = PatternTable.INDEX0;
+				elements[i] = 0;
 				selected[i] = false;
 			}
+			selectTableElement(ID, 0);
 			return elements;
 		}
 		

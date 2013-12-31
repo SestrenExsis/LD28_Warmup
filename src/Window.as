@@ -59,28 +59,36 @@ package
 			member.selected[Element] = true;
 			member.lastSelectedIndex = Element;
 			
-			var _currentPalette:Array
+			var _elements:Array
 			if (member.ID == PALETTES)
 			{
 				selectTableElement(COLORS, member.elements[Element]);
-				_currentPalette = (member as ColorTable).getColorPalette();
+				_elements = (member as ColorTable).getColorPalette();
 				member = getTableByID(TILESET);
-				(member as PatternTable).changePalette(_currentPalette);
+				(member as PatternTable).changePalette(_elements);
 			}
 			else if (member.ID == COLORS)
 			{
-				changeTableElement(PALETTES, member.elements[Element]);
+				changeSelectedElement(PALETTES, member.elements[Element]);
 				//selectTableElement(PALETTES, member.elements[Element]);
 				member = getTableByID(PALETTES);
-				_currentPalette = (member as ColorTable).getColorPalette();
+				_elements = (member as ColorTable).getColorPalette();
 				member = getTableByID(TILESET);
-				(member as PatternTable).changePalette(_currentPalette);
+				(member as PatternTable).changePalette(_elements);
+			}
+			else if (member.ID == TILESET)
+			{
+				//changeSelectedElement(TILE_EDITOR, member.elements[Element]);
+				//member = getTableByID(PALETTES);
+				//_elements = (member as ColorTable).getColorPalette();
+				//member = getTableByID(TILESET);
+				//(member as PatternTable).changePalette(_elements);
 			}
 			
 			return true;
 		}
 		
-		protected static function changeTableElement(TableID:int, NewValue:int):Boolean
+		protected static function changeSelectedElement(TableID:int, NewValue:int):Boolean
 		{
 			var member:Window = getTableByID(TableID);
 			
@@ -223,9 +231,9 @@ package
 							partitionY = (int)(_y / partitionSize.y) + 1;
 						}
 						
-						if (partitions)
+						if (partitions && (partitions.x > 0 || partitions.y > 0))
 						{
-							if ((_y % partitionSize.y) == 0)
+							if (columnHeaders && (_y % partitionSize.y) == 0)
 							{
 								_flashPoint.x = x + buffer.x + (block.x + spacing.x) * (_x + partitionX);
 								_flashPoint.y = y + titleBarHeight + buffer.y + (block.y + spacing.y) * (_y + partitionY - 1);
@@ -233,7 +241,7 @@ package
 								_flashRect.y = ((partitionY - 1) % partitionSize.y) * block.y;
 								FlxG.camera.buffer.copyPixels(columnHeaders, _flashRect, _flashPoint, null, null, true);
 							}
-							if ((_x % partitionSize.x) == 0)
+							if (rowHeaders && (_x % partitionSize.x) == 0)
 							{
 								_flashPoint.x = x + buffer.x + (block.x + spacing.x) * (_x + partitionX - 1);
 								_flashPoint.y = y + titleBarHeight + buffer.y + (block.y + spacing.y) * (_y + partitionY);
@@ -260,7 +268,12 @@ package
 							
 							if (selected[i])
 							{
+								_flashRect.x -= 1;
+								_flashRect.y -= 1;
+								_flashRect.width += 2;
+								_flashRect.height += 2;
 								FlxG.camera.buffer.fillRect(_flashRect, 0xff000000);
+								
 								_flashRect.x += 1;
 								_flashRect.y += 1;
 								_flashRect.width -= 2;
