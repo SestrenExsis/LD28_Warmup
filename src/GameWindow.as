@@ -27,8 +27,8 @@ package
 		{
 			super.draw();
 			
-			_flashPoint.x = x + 4;
-			_flashPoint.y = y + 16;
+			_flashPoint.x = posX + 4;
+			_flashPoint.y = posY + 16;
 			_flashRect.x = _flashRect.y = 0;
 			_flashRect.width = frameWidth;
 			_flashRect.height = frameHeight;

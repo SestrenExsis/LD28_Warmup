@@ -172,16 +172,16 @@ package
 				}
 				if (timeClicked >= maxTime)
 				{
-					offset.x = FlxG.mouse.x - x;
-					offset.y = FlxG.mouse.y - y;
+					offset.x = FlxG.mouse.x - posX;
+					offset.y = FlxG.mouse.y - posY;
 					isDragging = true;
 					timeClicked = getTimer();
 				}
 			}
 			if (isDragging)
 			{
-				label.x = x = FlxG.mouse.x - offset.x;
-				label.y = y = FlxG.mouse.y - offset.y;
+				label.posX = posX = FlxG.mouse.x - offset.x;
+				label.posY = posY = FlxG.mouse.y - offset.y;
 			}
 			if (FlxG.mouse.justReleased())
 			{
@@ -192,18 +192,18 @@ package
 		
 		override public function draw():void
 		{
-			_flashRect.x = x + 1;
-			_flashRect.y = y + 1;
+			_flashRect.x = posX + 1;
+			_flashRect.y = posY + 1;
 			_flashRect.width = width;
 			_flashRect.height = height;
 			FlxG.camera.buffer.fillRect(_flashRect, 0xff000000);
 							
-			_flashRect.x = x;
-			_flashRect.y = y;
+			_flashRect.x = posX;
+			_flashRect.y = posY;
 			FlxG.camera.buffer.fillRect(_flashRect, 0xffffffff);
 			
-			_flashRect.x = x + 1;
-			_flashRect.y = y + 8;
+			_flashRect.x = posX + 1;
+			_flashRect.y = posY + 8;
 			_flashRect.width -= 2;
 			_flashRect.height = 3;
 			FlxG.camera.buffer.fillRect(_flashRect, 0xFFA4E4FC);
@@ -235,24 +235,24 @@ package
 						{
 							if (columnHeaders && (_y % partitionSize.y) == 0)
 							{
-								_flashPoint.x = x + buffer.x + (block.x + spacing.x) * (_x + partitionX);
-								_flashPoint.y = y + titleBarHeight + buffer.y + (block.y + spacing.y) * (_y + partitionY - 1);
+								_flashPoint.x = posX + buffer.x + (block.x + spacing.x) * (_x + partitionX);
+								_flashPoint.y = posY + titleBarHeight + buffer.y + (block.y + spacing.y) * (_y + partitionY - 1);
 								_flashRect.x = (_x % partitionSize.x) * block.x;
 								_flashRect.y = ((partitionY - 1) % partitionSize.y) * block.y;
 								FlxG.camera.buffer.copyPixels(columnHeaders, _flashRect, _flashPoint, null, null, true);
 							}
 							if (rowHeaders && (_x % partitionSize.x) == 0)
 							{
-								_flashPoint.x = x + buffer.x + (block.x + spacing.x) * (_x + partitionX - 1);
-								_flashPoint.y = y + titleBarHeight + buffer.y + (block.y + spacing.y) * (_y + partitionY);
+								_flashPoint.x = posX + buffer.x + (block.x + spacing.x) * (_x + partitionX - 1);
+								_flashPoint.y = posY + titleBarHeight + buffer.y + (block.y + spacing.y) * (_y + partitionY);
 								_flashRect.x = ((partitionX - 1) % partitionSize.x) * block.x;
 								_flashRect.y = (_y % partitionSize.y) * block.y;
 								FlxG.camera.buffer.copyPixels(rowHeaders, _flashRect, _flashPoint, null, null, true);
 							}
 						}
 						
-						_flashRect.x = x + buffer.x + (block.x + spacing.x) * (_x + partitionX);
-						_flashRect.y = y + titleBarHeight + buffer.y + (block.y + spacing.y) * (_y + partitionY);
+						_flashRect.x = posX + buffer.x + (block.x + spacing.x) * (_x + partitionX);
+						_flashRect.y = posY + titleBarHeight + buffer.y + (block.y + spacing.y) * (_y + partitionY);
 						
 						drawElementBackground(i);
 						
